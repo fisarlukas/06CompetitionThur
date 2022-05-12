@@ -1,5 +1,13 @@
 package fisar;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Scanner;
+
 /**
  *
  * @author lukas.fisar
@@ -19,7 +27,7 @@ public class Zavodnik {
     private int time;
     private int poradi;
 
-    public Zavodnik(String jmeno, String prijmeni, String zavod, int rokNarozeni, String pohlavi) {
+    public Zavodnik(String jmeno, String prijmeni, int rokNarozeni, String pohlavi, String zavod) {
         this.jmeno = jmeno;
         this.prijmeni = prijmeni;
         this.zavod = zavod;
@@ -27,7 +35,46 @@ public class Zavodnik {
         this.pohlavi = pohlavi;
     }
 
+    //kopie zavodnika
+    public Zavodnik(Zavodnik z) {
+        this.jmeno = z.jmeno;
+        this.prijmeni = z.prijmeni;
+        this.zavod = z.zavod;
+        this.rokNarozeni = z.rokNarozeni;
+        this.pohlavi = z.pohlavi;
+        this.startovniCislo = z.startovniCislo;
+        
+    }
     
+    //melo byt ve tride "zavod"
+    public void loadStart(File startFile) throws IOException {
+        try(BufferedReader br = new BufferedReader(new FileReader(startFile))) {
+            String line;
+            String[] parts;
+            Zavodnik r;
+            br.readLine(); //preskoceni hlavicky
+            while (line = br.readLine() != null) {
+                parts = line.split("[ ]+");
+                r = new Zavodnik(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3].charAt(0), parts[4]);
+                competitors.add(r);
+            }
+        }
+    }
+    
+    public void loadFinish(File finishFile) throws FileNotFoundException {
+        try(Scanner in = new Scanner(finishFile)) {
+            int number;
+            String casDobehu;
+            Zavodnik r;
+            in.nextLine();
+            while(in.hasNext()) {
+                number = in.nextInt();
+                casDobehu = in.next();
+                r = findByRegNumber(number);
+                r.setCil(casDobehu);
+            }
+        }
+    }
 
     public String getJmeno() {
         return jmeno;
@@ -43,6 +90,16 @@ public class Zavodnik {
 
     public int getRokNarozeni() {
         return rokNarozeni;
+    }
+    
+    public int getVek() {
+        LocalDate = current_date = LocalDate.now();
+        int year = current_date.getYear();
+        return year - rokNarozeni;
+    }
+    
+    public int getTime() {
+        return time = TimeTools.GetTime(start, cil);
     }
 
     public String getPohlavi() {
@@ -74,12 +131,43 @@ public class Zavodnik {
     }
 
     public int getTime() {
+        if(getStavZavodnika() == StavZavodnika.ukoncen) {
+            time = TimeTools.GetTime(start, cil);
+        }
         return time;
     }
 
     public int getPoradi() {
         return poradi;
     }
+
+    public void setStart(int h, int m, int s) {
+        this.start = start;
+    }
+
+    public void setCil(int cil) {
+        this.cil = cil;
+    }
     
     
+    
+    public String toString() {
+        return String.format("%5d %10s %10s %2d %1s %10s %10s %10s",
+                            this.startovniCislo, this.jmeno, this.prijmeni,
+                            this.getVek(), this.pohlavi, TimeTools.SecondsToTime(this.start),
+                            TimeTools.SecondsToTime(this.cil), TimeTools.SecondsToTime(this.getTime()));
+    }
+    
+    public static void main(String[] args) {
+        Zavodnik z = new Zavodnik("Alice", "Mala", "ZavodLiberec", 1980, "Zena");
+        System.out.println(z);
+        z.setStart(9,0,0);
+        System.out.println(z);
+        z.setCil("10:02:05");
+        System.out.println(z);
+    }
+    
+    public int compareTo(Zavodnik o) {
+        return this.getTime() < o.getTime();
+    }
 }
