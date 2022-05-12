@@ -46,34 +46,8 @@ public class Zavodnik {
         
     }
     
-    //melo byt ve tride "zavod"
-    public void loadStart(File startFile) throws IOException {
-        try(BufferedReader br = new BufferedReader(new FileReader(startFile))) {
-            String line;
-            String[] parts;
-            Zavodnik r;
-            br.readLine(); //preskoceni hlavicky
-            while (line = br.readLine() != null) {
-                parts = line.split("[ ]+");
-                r = new Zavodnik(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3].charAt(0), parts[4]);
-                competitors.add(r);
-            }
-        }
-    }
-    
-    public void loadFinish(File finishFile) throws FileNotFoundException {
-        try(Scanner in = new Scanner(finishFile)) {
-            int number;
-            String casDobehu;
-            Zavodnik r;
-            in.nextLine();
-            while(in.hasNext()) {
-                number = in.nextInt();
-                casDobehu = in.next();
-                r = findByRegNumber(number);
-                r.setCil(casDobehu);
-            }
-        }
+    public void setClub(String club) {
+        club = checkClub(club);
     }
 
     public String getJmeno() {
